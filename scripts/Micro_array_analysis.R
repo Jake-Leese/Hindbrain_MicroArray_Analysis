@@ -15,6 +15,7 @@ library(pheatmap)
 library(scatterplot3d)
 library(affyPLM)  # Had to install with configure.args = "CFLAGS='-fopenmp -DOPENMP=1'" to overcome multithreading error
 
+source("./scripts/functions/Pairwise_DE.R")
 
 raw_data_path <- "./raw_files/"
 QC_path <- "./QC/"
@@ -263,3 +264,11 @@ top_genes <- unique(unlist(lapply(marker_lists, function(x) head(x$ID, 20))))
 pheatmap(expr_clean[top_genes, ], 
          annotation_col = data.frame(row.names = sample_info$sample, cell_type = sample_info$cell_type), 
          show_rownames = TRUE)
+
+
+#############################################################################################################
+############################################# Pairwise DEGs #################################################
+
+r1_vs_r2 <- Pairwise_DE(expr_t_clean, sample_info, "r1", "r2")
+
+Pairwise_DE_VP(expr_t_clean, sample_info, "r1", "r2")
