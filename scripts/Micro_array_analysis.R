@@ -10,6 +10,8 @@ library(Biobase)
 library(pd.mogene.1.0.st.v1)
 library(mogene10sttranscriptcluster.db)
 library(annotate)
+library(dplyr)
+library(ggrepel)
 library(ggplot2)
 library(pheatmap)
 library(scatterplot3d)
@@ -200,7 +202,7 @@ new_colnames <- colnames(expr_t_clean)
 # Match probe IDs to annotation table
 matched <- match(colnames(expr_t_clean), annot_filtered$ID)
 
-# Replace with gene symbol *only if it's non-empty and non-NA*
+# Replace with gene symbol *only if it's non-empty and non-NA
 gene_symbols <- annot_filtered$Gene.Symbol[matched]
 
 # Identify where gene symbols are available
@@ -269,6 +271,22 @@ pheatmap(expr_clean[top_genes, ],
 #############################################################################################################
 ############################################# Pairwise DEGs #################################################
 
-r1_vs_r2 <- Pairwise_DE(expr_t_clean, sample_info, "r1", "r2")
+m_vs_r1 <- Pairwise_DE_table(expr_t_clean, sample_info, "m", "r1")
+r1_vs_r2 <- Pairwise_DE_table(expr_t_clean, sample_info, "r1", "r2")
+r2_vs_r3 <- Pairwise_DE_table(expr_t_clean, sample_info, "r2", "r3")
+r3_vs_r4 <- Pairwise_DE_table(expr_t_clean, sample_info, "r3", "r4")
+r4_vs_r5 <- Pairwise_DE_table(expr_t_clean, sample_info, "r4", "r5")
 
-Pairwise_DE_VP(expr_t_clean, sample_info, "r1", "r2")
+write.csv(m_vs_r1, file = "./processed_data/markers_m_vs_r1.csv", row.names = TRUE)
+write.csv(r1_vs_r2, file = "./processed_data/markers_r1_vs_r2.csv", row.names = TRUE)
+write.csv(r2_vs_r3, file = "./processed_data/markers_r2_vs_r3.csv", row.names = TRUE)
+write.csv(r3_vs_r4, file = "./processed_data/markers_r3_vs_r4.csv", row.names = TRUE)
+write.csv(r4_vs_r5, file = "./processed_data/markers_r4_vs_r5.csv", row.names = TRUE)
+
+# Generating volcano plots for pairwise comparisons
+Pairwise_DE_VP(expr_t_clean, sample_info, "m", "r1", logFC_threshold = 2, pval_threshold = 0.005, n_top_genes = 15)
+Pairwise_DE_VP(expr_t_clean, sample_info, "r1", "r2", logFC_threshold = 2, pval_threshold = 0.005, n_top_genes = 15)
+Pairwise_DE_VP(expr_t_clean, sample_info, "r2", "r3", logFC_threshold = 2, pval_threshold = 0.005, n_top_genes = 15)
+Pairwise_DE_VP(expr_t_clean, sample_info, "r3", "r4", logFC_threshold = 2, pval_threshold = 0.005, n_top_genes = 15)
+Pairwise_DE_VP(expr_t_clean, sample_info, "r4", "r5", logFC_threshold = 2, pval_threshold = 0.005, n_top_genes = 15)
+
